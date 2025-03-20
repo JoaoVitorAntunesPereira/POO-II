@@ -13,3 +13,15 @@ requiredFiles = [".replit", "replit.nix"]
 [deployment]
 run = ["python3", "main.py"]
 deploymentTarget = "cloudrun"
+
+[workflows]
+runButton = "PyRunner"
+
+[[workflows.workflow]]
+name = "PyRunner"
+mode = "sequential"
+author = 37826236
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd aulas/02 && python3 pessoa.py"
