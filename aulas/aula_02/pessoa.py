@@ -20,15 +20,17 @@ class Pessoa:
 class PessoaJuridica(Pessoa):
     pass
 
-p1 = Pessoa("Joao", "Joao@gmail.com")
-print(p1.nome)
-print(p1.email)
-p1.renda = 90_000
-print(f"Renda anual de {p1.nome}: R$ {p1.renda}")
-p2 = Pessoa("James")
-print(p2.nome)
-print(p2.email)
-
-pj = PessoaJuridica("Muffato")
-print(pj.nome)
-
+if __name__ == "__main__":
+    p1 = Pessoa("Joao", "Joao@gmail.com")
+    print(p1.nome)
+    print(p1.email)
+    p1.renda = 90_000
+    print(f"Renda anual de {p1.nome}: R$ {p1.renda}")
+    p2 = Pessoa("James")
+    print(p2.nome)
+    print(p2.email)
+    
+    pj = PessoaJuridica("Muffato")
+    print(pj.nome)
+    
+    
