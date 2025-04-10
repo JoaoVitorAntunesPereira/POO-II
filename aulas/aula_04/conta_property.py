@@ -118,7 +118,7 @@ class Conta:
         pass
 
     def extrato(self):
-        print("Transações: ", self.pix)
+        print(f"[yellow]Transações: {self.pix} [\]")
         for t in self.transacoes:
             print("="*30)
             cor = "red" if t.operacao == "D" else "green"
@@ -163,10 +163,11 @@ if __name__ == "__main__":
     maria.transferir(jose, 23_000)
     maria.transferir(jose, 21_000)
 
-    maria.consulta()
-    jose.consulta()
+
 
 
     maria.extrato()
     jose.extrato()
 
+    maria.consulta()
+    jose.consulta()
