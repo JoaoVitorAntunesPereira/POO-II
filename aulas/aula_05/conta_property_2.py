@@ -46,9 +46,9 @@ class Conta:
 
 
         self._saldo = saldo # _ para tornar a variável protegida
-        self.nome = nome
         self._pix = pix
         self._limite = limite
+        self.nome = nome
         self._transacoes: list[Transacao] = [] # 1 Conta possui N transações(1-N)
 
     @property
@@ -81,7 +81,7 @@ class Conta:
 
     @property
     def transacoes(self) -> list[Transacao]:
-        return self.transacoes
+        return self._transacoes
     
     @transacoes.setter
     def transacoes(self, t: Transacao):
