@@ -1,5 +1,5 @@
 import uuid
-from conta_property_2 import Transacao, Conta
+from conta_property_2 import Transacao, Conta, TipoOperacao
 from nicegui import ui, app, observables
 from datetime import datetime
 from rich import print
@@ -23,6 +23,9 @@ adicionarConta(c1)
 adicionarConta(c2)
 adicionarConta(c3)
 adicionarConta(c4)
+
+c1.transferir(c2, 3000)
+c3.transferir(c2, 100)
 
 
 @ui.page('/cadastrar_conta')
@@ -129,6 +132,41 @@ def replace_text_color(label: ui.label, value: float):
     else:
         label.classes(replace='text-green-600 text-lg')
 
+
+def transferencia_card(trasacao: Transacao):
+    with ui.column():
+            cor = "red" if trasacao.operacao == TipoOperacao.DEBITO.value else "green"
+
+            if trasacao.operacao == TipoOperacao.DEBITO.value:
+                operacao = "Débito"
+                cor_operacao = "red"
+            else:
+                operacao = "Crédito"
+                cor_operacao = "green"
+
+            if trasacao.status == False:
+                status = "Recusada"
+                cor_status = "red"
+            else:
+                status = "Aprovada"
+                cor_status = "green"
+
+            #print(f"Operação: [{cor_operacao}]{operacao}[/]\n" +
+            #      f"Data: {t.data}\n" +
+            #      f"Valor: [{cor_operacao}]{t.valor}[/]\n" +
+            #      f"Origem: {t.origem.pix}\n" +
+            #      f"Destino: {t.destino.pix}\n" +
+            #      f"Status: [{cor_status}]{status}[/]")
+            
+            with ui.row():
+                ui.label("Operação: ").classes(replace="text-lg")
+                ui.label(operacao).classes(replace=f"text-{cor_operacao} text-lg")
+                
+            
+
+    pass
+
+
 @ui.page('/consulta/{id}')
 def consulta_dados(id: str):
     conta = buscar_conta_uuid(id)
@@ -151,6 +189,25 @@ def consulta_dados(id: str):
             ui.label("Limite: ").classes(replace='font-bold text-lg')
             limite_dado = ui.label(conta.limite)
             replace_text_color(limite_dado, conta.limite)
+            
+        ui.label("Extrato").classes(replace='font-bold text-lg text-info')
+        
+        transacao_columns = [
+            {'name': 'operacao', 'label': 'Operação', 'field': 'operacao', 'align': 'left'},
+            {'name': 'origem', 'label': 'Origem', 'field': 'origem', 'align': 'left'},
+            {'name': 'destino', 'label': 'Destino', 'field': 'destino', 'align': 'left'},
+            {'name': 'valor', 'label': 'Valor', 'field': 'valor', 'align': 'left'},
+            {'name': 'data', 'label': 'Data', 'field': 'data', 'align': 'left'},
+            {'name': 'status', 'label': 'Status', 'field': 'status', 'align': 'left'}
+        ]
+        
+        transacao_rows = []
+        
+        for transacao in conta.transacoes:
+            transacao_rows.append({'operacao': transacao.operacao, 'origem': transacao.origem.pix, 'destino': transacao.destino.pix, 'valor': transacao.valor, 'data': transacao.data, 'status': transacao.status})
+            
+        transacoes_table = ui.table(columns=transacao_columns, rows=transacao_rows, row_key='operacao')
+        
     pass
 
 
