@@ -53,7 +53,7 @@ class Conta:
                 ):
 
 
-        self._saldo = saldo # _ para tornar a variável protegida
+        self._saldo = saldo # _ pzzzara tornar a variável protegida
         self._pix = pix
         self._limite = limite
         self.nome = nome

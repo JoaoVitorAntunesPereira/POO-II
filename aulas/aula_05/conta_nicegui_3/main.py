@@ -22,13 +22,13 @@ c2 = Conta(510, "jose@gmail.com", 100, "sjose", uuid.uuid4())
 c3 = Conta(500, "vitor@gmail.com", 250, "vitor", uuid.uuid4())
 c4 = Conta(-200, "carlos@gmail.com", 500, "JOao Carlos vitor", uuid.uuid4())
 
-adicionarConta(c1)
-adicionarConta(c2)
-adicionarConta(c3)
-adicionarConta(c4)
+#adicionarConta(c1)
+#adicionarConta(c2)
+#adicionarConta(c3)
+#adicionarConta(c4)
 
-c1.transferir(c2, 3000)
-c3.transferir(c2, 100)
+#c1.transferir(c2, 3000)
+#c3.transferir(c2, 100)
 
 
 if os.path.exists('arquivos/contas.csv'):
