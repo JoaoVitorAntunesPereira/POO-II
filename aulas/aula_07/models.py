@@ -1,55 +1,65 @@
 from datetime import datetime
 from enum import Enum
 
-class Classificacao():
-    def __init__(self,
-                 id: int = None,
-                 descricao: str = None):
+class Classificacao(Enum):
+    LIVRE = "Livre para todas as idades"
+    IDADE_10 = "Não recomendado para menores de 10 anos"
+    IDADE_12 = "Não recomendado para menores de 12 anos"
+    IDADE_14 = "Não recomendado para menores de 14 anos"
+    IDADE_16 = "Não recomendado para menores de 16 anos"
+    IDADE_18 = "Não recomendado para menores de 18 anos"
 
-        self._id = id
-        self._descricao = descricao
-        
-        pass
-    pass
 
 class Genero(Enum):
-    def __init__(self,
-                 id: int = None,
-                 nome: str = None):
+    ACAO = "Ação"
+    AVENTURA = "Aventura"
+    COMEDIA = "Comédia"
+    DRAMA = "Drama"
+    FANTASIA = "Fantasia"
+    FICCAO_CIENTIFICA = "Ficção Científica"
+    ROMANCE = "Romance"
+    SUSPENSE = "Suspense"
+    TERROR = "Terror"
+    DOCUMENTARIO = "Documentário"
+    ANIMACAO = "Animação"
+    MUSICAL = "Musical"
 
-        self._id = id
-        self._nome = nome
-        
-        pass
-    pass
-
-class PaisOrigem:
+class Pais(Enum):
+    MUNDIAL = "Mundial"
+    BRASIL = "Brasil"
+    CANADA = "Canadá"
     pass
 
 class Estreia:
 
     def __init__(self,
                  data: datetime = None,
-                 pais: str = None):
+                 pais: Pais = None):
 
         self._data = data
         self._pais = pais
 
         pass
 
-
+class Diretor:
+    def __init__(self,
+                 nome: str = None):
+        
+        self.nome = nome
+        pass
+    pass
 
 class Filme:
 
     def __init__(self,
                  titulo: str = None,
                  ano_producao: int = None,
-                 diretor:str = None,
+                 diretor: "Diretor" = None,
                  estreia: "Estreia" = None,
                  duracao: int = None,
                  classificacao: "Classificacao" = None,
                  genero: list[Genero] = None,
-                 paises_origem: list[PaisOrigem] = None,
+                 paises_origem: list[Pais] = None,
                  sinopse: str = None):
         
         self._titulo = titulo
@@ -58,8 +68,8 @@ class Filme:
         self._estreia = estreia 
         self._duracao = duracao
         self._classificacao = classificacao
-        self._genero = genero
-        self._paises_origem = paises_origem
+        self._genero = genero if genero else []
+        self._paises_origem = paises_origem if paises_origem else []
         self._sinopse = sinopse
         pass
     pass
