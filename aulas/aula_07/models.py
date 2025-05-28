@@ -1,75 +1,104 @@
-    from datetime import datetime
-    from enum import Enum
+from datetime import datetime
+from enum import Enum
 
-    class Classificacao(Enum):
-        LIVRE = 0
-        IDADE_10 = 10
-        IDADE_12 = 12
-        IDADE_14 = 14
-        IDADE_16 = 16
-        IDADE_18 = 18
+class Classificacao(Enum):
+    LIVRE = 0
+    IDADE_10 = 10
+    IDADE_12 = 12
+    IDADE_14 = 14
+    IDADE_16 = 16
+    IDADE_18 = 18
 
 
-    class Genero(Enum):
-        ACAO = "Ação"
-        AVENTURA = "Aventura"
-        COMEDIA = "Comédia"
-        DRAMA = "Drama"
-        FANTASIA = "Fantasia"
-        FICCAO_CIENTIFICA = "Ficção Científica"
-        ROMANCE = "Romance"
-        SUSPENSE = "Suspense"
-        TERROR = "Terror"
-        DOCUMENTARIO = "Documentário"
-        ANIMACAO = "Animação"
-        MUSICAL = "Musical"
+class Genero(Enum):
+    ACAO = "Ação"
+    AVENTURA = "Aventura"
+    COMEDIA = "Comédia"
+    DRAMA = "Drama"
+    FANTASIA = "Fantasia"
+    FICCAO_CIENTIFICA = "Ficção Científica"
+    ROMANCE = "Romance"
+    SUSPENSE = "Suspense"
+    TERROR = "Terror"
+    DOCUMENTARIO = "Documentário"
+    ANIMACAO = "Animação"
+    MUSICAL = "Musical"
 
-    class Pais(Enum):
-        MUNDIAL = "Mundial"
-        BRASIL = "Brasil"
-        CANADA = "Canadá"
-        pass
 
-    class Estreia:
+class Estreia:
 
-        def __init__(self,
-                     data: datetime = None,
-                     pais: Pais = None):
+    def __init__(self, data: datetime = None, pais: str = None):
+        self._data = data
+        self._pais = pais
+        self._id = id = None
 
-            self._data = data
-            self._pais = pais
+    @property
+    def data(self):
+        return self._data
 
-            pass
+    @data.setter
+    def data(self, value: datetime):
+        self._data = value
 
-    class Diretor:
-        def __init__(self,
-                     nome: str = None):
+    @property
+    def pais(self):
+        return self._pais
 
-            self.nome = nome
-            pass
-        pass
+    @pais.setter
+    def pais(self, value: str):
+        self._pais = value
 
-    class Filme:
+    @property
+    def id(self):
+        return self._id
+    
+    @id.setter
+    def id(self, value: int):
+        self._id = value
 
-        def __init__(self,
-                     titulo: str = None,
-                     ano_producao: int = None,
-                     diretor: "Diretor" = None,
-                     estreia: "Estreia" = None,
-                     duracao: int = None,
-                     classificacao: "Classificacao" = None,
-                     genero: set[Genero] = None,
-                     paises_origem: set[Pais] = None,
-                     sinopse: str = None):
 
-            self._titulo = titulo
-            self._ano_producao = ano_producao
-            self._diretor = diretor
-            self._estreia = estreia 
-            self._duracao = duracao
-            self._classificacao = classificacao
-            self._genero = genero if genero else []
-            self._paises_origem = paises_origem if paises_origem else []
-            self._sinopse = sinopse
-            pass
-        pass
+class Diretor:
+
+    def __init__(self, nome: str = None):
+        self._nome = nome
+        self._id = id = None
+
+    @property
+    def nome(self):
+        return self._nome
+
+    @nome.setter
+    def nome(self, value: str):
+        self._nome = value
+
+    @property
+    def id(self):
+        return self._id
+    
+    @id.setter
+    def id(self, value):
+        self._id = value
+
+
+class Filme:
+    def __init__(self, 
+                 titulo: str = None, 
+                 ano_producao: int = None, 
+                 diretor: Diretor = None, 
+                 estreia: Estreia = None, 
+                 duracao: int = None, 
+                 classificacao: Classificacao = None, 
+                 genero: set[Genero] = None, 
+                 paises_origem: set[str] = None, 
+                 sinopse: str = None):
+        
+        self.titulo = titulo
+        self.ano_producao = ano_producao
+        self.diretor = diretor
+        self.estreia = estreia
+        self.duracao = duracao
+        self.classificacao = classificacao
+        self.genero = genero if genero else set() 
+        self.paises_origem = paises_origem if paises_origem else set()
+        self.sinopse = sinopse
+        self.id = id = None
