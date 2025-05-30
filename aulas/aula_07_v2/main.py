@@ -1,8 +1,8 @@
 from nicegui import ui, app
 from models import Diretor, Estreia, Filme, Genero, Classificacao
 from datetime import datetime
-from dados import dados_filmes
-import crud
+from dados import dados_filmes, diretor1, diretor2, diretor3, diretor4, diretor5
+from crud import add_diretor, init_db, SessionLocal, add_filme, get_filmes
 
 generos = [genero.value for genero in Genero]
 classificacoes = []
@@ -161,7 +161,7 @@ def listar():
     else:
         ui.label("A lista de filmes está vazia.")
 
-ui.run()
+#ui.run()
 
 
 
@@ -181,9 +181,26 @@ if __name__ == "__main__":
     def test_add_filme():
         db = SessionLocal()
 
-        filme = dados_filmes.filme1
-        crud.add_filme(filme)
+        for filme in filmes:
+            add_filme(db, filme)
 
-    results = test_list_movies() # select all
+    def test_list_filmes():
+        db = SessionLocal()
+        return [(f.id, f.titulo, f.ano_producao, f.generos, f.diretor) for f in get_filmes(db)]
 
-    print(results)
+    def test_add_diretores():
+        db = SessionLocal()
+        add_diretor(db, diretor1)
+        add_diretor(db, diretor2)
+        add_diretor(db, diretor3)
+        add_diretor(db, diretor4)
+        add_diretor(db, diretor5)
+
+    #test_add_diretores()
+
+
+    test_add_filme()
+
+    #results = test_list_filmes() # select all
+
+    #print(results)
