@@ -1,21 +1,22 @@
 from datetime import datetime
-from models import Classificacao, Diretor, Estreia, Genero, Filme
-from crud import get_diretor_by_name, SessionLocal, map_diretor
+from filme_obj_models import Classificacao, Diretor, Estreia, Genero, Filme
+from filme_repository import FilmeRepository
+from utils import  SessionLocal
 
 # Criando diretores
-#diretor1 = Diretor("Christopher Nolan")
-#diretor2 = Diretor("Greta Gerwig")
-#diretor3 = Diretor("Jordan Peele")
-#diretor4 = Diretor("Hayao Miyazaki")
-#diretor5 = Diretor("James Cameron")
-
+diretor1 = Diretor("Christopher Nolan")
+diretor2 = Diretor("Greta Gerwig")
+diretor3 = Diretor("Jordan Peele")
+diretor4 = Diretor("Hayao Miyazaki")
+diretor5 = Diretor("James Cameron")
+filme_repositry = FilmeRepository
 db = SessionLocal()
 
-diretor1 = map_diretor(get_diretor_by_name(db,"Christopher Nolan"))
-diretor2 = map_diretor(get_diretor_by_name(db,"Greta Gerwig"))
-diretor3 = map_diretor(get_diretor_by_name(db,"Jordan Peele"))
-diretor4 = map_diretor(get_diretor_by_name(db,"Hayao Miyazaki"))
-diretor5 = map_diretor(get_diretor_by_name(db,"James Cameron"))
+#diretor1 = filme_repositry.map_diretor(filme_repositry.get_diretor_by_name("Christopher Nolan"))
+#diretor2 = filme_repositry.map_diretor(filme_repositry.get_diretor_by_name("Greta Gerwig"))
+#diretor3 = filme_repositry.map_diretor(filme_repositry.get_diretor_by_name("Jordan Peele"))
+#diretor4 = filme_repositry.map_diretor(filme_repositry.get_diretor_by_name("Hayao Miyazaki"))
+#diretor5 = filme_repositry.map_diretor(filme_repositry.get_diretor_by_name("James Cameron"))
 
 # Criando estreias
 estreias_oppenheimer = {
