@@ -1,27 +1,19 @@
 from datetime import datetime
-from enum import Enum
+from typing import Optional, Set
 
-class Classificacao(Enum):
-    LIVRE = 0
-    IDADE_10 = 10
-    IDADE_12 = 12
-    IDADE_14 = 14
-    IDADE_16 = 16
-    IDADE_18 = 18
+class EntidadeSimples:
+    def __init__(self, descricao: str):
+        self.descricao = descricao
+        self.id = None
 
-class Genero(Enum):
-    ACAO = "Ação"
-    AVENTURA = "Aventura"
-    COMEDIA = "Comédia"
-    DRAMA = "Drama"
-    FANTASIA = "Fantasia"
-    FICCAO_CIENTIFICA = "Ficção Científica"
-    ROMANCE = "Romance"
-    SUSPENSE = "Suspense"
-    TERROR = "Terror"
-    DOCUMENTARIO = "Documentário"
-    ANIMACAO = "Animação"
-    MUSICAL = "Musical"
+class Genero(EntidadeSimples):
+    pass
+
+class Classificacao(EntidadeSimples):
+    pass
+
+class Pais(EntidadeSimples):
+    pass
 
 class Estreia:
     def __init__(self, data: datetime = None, pais: str = None):
@@ -39,20 +31,20 @@ class Filme:
                  titulo: str = None, 
                  ano_producao: int = None, 
                  diretor: Diretor = None, 
-                 estreia: set[Estreia] = None, 
+                 estreias: Optional[Set[Estreia]] = None, 
                  duracao: int = None, 
                  classificacao: Classificacao = None, 
-                 genero: set[Genero] = None, 
-                 paises_origem: set[str] = None, 
+                 generos: Optional[Set[Genero]] = None, 
+                 paises_origem: Optional[Set[Pais]] = None, 
                  sinopse: str = None):
         
         self.titulo = titulo
         self.ano_producao = ano_producao
         self.diretor = diretor
-        self.estreia = estreia
+        self.estreias = set(estreias) if estreias else set()
         self.duracao = duracao
         self.classificacao = classificacao
-        self.genero = genero if genero else set() 
-        self.paises_origem = paises_origem if paises_origem else set()
+        self.generos = set(generos) if generos else set()
+        self.paises_origem = set(paises_origem) if paises_origem else set()
         self.sinopse = sinopse
         self.id = None
