@@ -15,11 +15,6 @@ class Classificacao(EntidadeSimples):
 class Pais(EntidadeSimples):
     pass
 
-class Estreia:
-    def __init__(self, data: datetime = None, pais: str = None):
-        self.data = data
-        self.pais = pais
-        self.id = None
 
 class Diretor:
     def __init__(self, nome: str = None):
@@ -31,7 +26,8 @@ class Filme:
                  titulo: str = None, 
                  ano_producao: int = None, 
                  diretor: Diretor = None, 
-                 estreias: Optional[Set[Estreia]] = None, 
+                 data_estreia: datetime = None,
+                 pais_estreia: Pais = None, 
                  duracao: int = None, 
                  classificacao: Classificacao = None, 
                  generos: Optional[Set[Genero]] = None, 
@@ -41,7 +37,8 @@ class Filme:
         self.titulo = titulo
         self.ano_producao = ano_producao
         self.diretor = diretor
-        self.estreias = set(estreias) if estreias else set()
+        self.data_estreia = data_estreia
+        self.pais_estreia = pais_estreia
         self.duracao = duracao
         self.classificacao = classificacao
         self.generos = set(generos) if generos else set()

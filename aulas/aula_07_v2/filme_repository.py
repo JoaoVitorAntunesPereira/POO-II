@@ -1,6 +1,6 @@
 from utils import SessionLocal, init_db
 from filme_db_models import tb_filme, tb_diretor, tb_classificacao, tb_genero
-from filme_obj_models import Filme, Diretor
+from filme_obj_models import Filme, Diretor, Classificacao, Genero, Pais
 
 class FilmeRepository:
     def __init__(self):
@@ -42,10 +42,15 @@ class FilmeRepository:
 
 #---Diretor
     def get_diretor_by_id(self, id: int):
-        return self.db.query(tb_diretor).filter(tb_diretor.diretor_id == id).first()
+        return self.map_diretor(self.db.query(tb_diretor).filter(tb_diretor.diretor_id == id).first())
 
     def get_diretor_by_name(self, nome: str):
         return self.db.query(tb_diretor).filter(tb_diretor.nome == nome).one()
+    
+    def get_all_diretor(self):
+        diretores = self.db.query(tb_diretor).all()
+        return [self.map_diretor(d) for d in diretores]
+
 
     def add_diretor(self, diretor_obj: Diretor):
         diretor = self.map_diretor(diretor_obj)
@@ -59,6 +64,25 @@ class FilmeRepository:
     
 #---Classificação
     def get_classificacao_by_id(self, id: int):
-        return self.db.query(tb_cl)
+        return self.db.query(tb_classificacao).filter(tb_classificacao.classificacao_id == id).first()
+    
+    def get_all_classificacao(self):
+        classificacoes = self.db.query(tb_classificacao).all()
+        return [self.map_classificacao(c) for c in classificacoes]
+    
+    def map_classificacao(self, classificacao: tb_classificacao):
+        classificacao_obj = Classificacao(classificacao.descricao)
+        classificacao_obj.id = classificacao.classificacao_id
+        return classificacao_obj
+    
+   
+#---Pais
+    def get_pais_by_id(self, id: int):
+        pass
+
+
+#---Genero
+    
+
 
 
