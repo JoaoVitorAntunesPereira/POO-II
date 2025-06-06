@@ -54,6 +54,7 @@ class tb_filme(Base):
     ano_producao = Column(Integer)
     data_estreia = Column(Date)
     duracao = Column(Integer)
+    sinopse = Column(String, nullable=False)
     is_active = Column(Boolean)
 
     diretor_id = Column(Integer, ForeignKey("diretor.diretor_id"))

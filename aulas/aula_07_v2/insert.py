@@ -27,7 +27,7 @@ paises = {
     "REINO_UNIDO": tb_pais(nome="Reino Unido"),
     "JAPAO": tb_pais(nome="Japão"),
 }
-session.add_all(paises.values())
+#session.add_all(paises.values())
 
 # 2. Inserir Diretores
 diretores = {
@@ -37,7 +37,7 @@ diretores = {
     4: tb_diretor(nome="Hayao Miyazaki"),
     5: tb_diretor(nome="James Cameron"),
 }
-session.add_all(diretores.values())
+#session.add_all(diretores.values())
 
 # 3. Inserir Classificações
 classificacoes = {
@@ -45,8 +45,9 @@ classificacoes = {
     "IDADE_12": tb_classificacao(descricao="12 anos"),
     "IDADE_14": tb_classificacao(descricao="14 anos"),
     "IDADE_16": tb_classificacao(descricao="16 anos"),
+    "IDADE_18": tb_classificacao(descricao="18 anos"),
 }
-session.add_all(classificacoes.values())
+#session.add_all(classificacoes.values())
 
 # 4. Inserir Gêneros
 generos = {
@@ -59,8 +60,8 @@ generos = {
     "AVENTURA": tb_genero(descricao="Aventura"),
     "FICCAO_CIENTIFICA": tb_genero(descricao="Ficção Científica"),
 }
-session.add_all(generos.values())
-session.commit()
+#session.add_all(generos.values())
+#session.commit()
 
 # Helper para buscar objetos
 def get_pais(nome): return next(p for p in paises.values() if p.nome == nome)
@@ -78,7 +79,8 @@ filmes = [
         diretor=diretores[1],
         classificacao=get_classificacao("14 anos"),
         pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Drama"), get_genero("Suspense")]
+        generos=[get_genero("Drama"), get_genero("Suspense")],
+        sinopse="A história de J. Robert Oppenheimer, o físico teórico que liderou o Projeto Manhattan e desenvolveu a primeira bomba atômica durante a Segunda Guerra Mundial."
     ),
     tb_filme(
         titulo="Barbie",
@@ -89,7 +91,8 @@ filmes = [
         diretor=diretores[2],
         classificacao=get_classificacao("12 anos"),
         pais_estreia=get_pais("Reino Unido"),
-        generos=[get_genero("Comédia"), get_genero("Fantasia")]
+        generos=[get_genero("Comédia"), get_genero("Fantasia")],
+        sinopse="Em Barbieland, tudo é perfeito — até que Barbie começa a questionar sua existência e parte para o mundo real em uma jornada de autoconhecimento e empoderamento."
     ),
     tb_filme(
         titulo="Nós",
@@ -100,7 +103,8 @@ filmes = [
         diretor=diretores[3],
         classificacao=get_classificacao("16 anos"),
         pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Terror"), get_genero("Suspense")]
+        generos=[get_genero("Terror"), get_genero("Suspense")],
+        sinopse="Uma família é aterrorizada por seus duplos durante uma viagem de férias, revelando um mistério perturbador sobre identidade e sociedade."
     ),
     tb_filme(
         titulo="A Viagem de Chihiro",
@@ -111,7 +115,8 @@ filmes = [
         diretor=diretores[4],
         classificacao=get_classificacao("Livre"),
         pais_estreia=get_pais("Japão"),
-        generos=[get_genero("Fantasia"), get_genero("Animação")]
+        generos=[get_genero("Fantasia"), get_genero("Animação")],
+        sinopse="Chihiro, uma garota de 10 anos, entra em um mundo mágico governado por espíritos, onde precisa resgatar seus pais e encontrar coragem para crescer."
     ),
     tb_filme(
         titulo="Avatar",
@@ -122,9 +127,11 @@ filmes = [
         diretor=diretores[5],
         classificacao=get_classificacao("12 anos"),
         pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Aventura"), get_genero("Ficção Científica")]
+        generos=[get_genero("Aventura"), get_genero("Ficção Científica")],
+        sinopse="Em Pandora, um ex-fuzileiro se infiltra entre os Na'vi através de um avatar e se vê dividido entre sua missão e a defesa de um novo mundo."
     )
 ]
+
 
 session.add_all(filmes)
 session.commit()
