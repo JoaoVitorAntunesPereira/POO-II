@@ -82,6 +82,11 @@ class FilmeRepository:
         diretor_obj.id = diretor.diretor_id
         return diretor_obj
     
+    def map_diretor_to_tb_model(self, diretor: Diretor):
+        diretor_tb_model = tb_diretor(nome=diretor.nome)
+        diretor_tb_model.diretor_id(diretor.id)
+        return diretor_tb_model
+    
 #---Classificação
     def get_classificacao_by_id(self, id: int):
         return self.map_classificacao_to_obj(self.db.query(tb_classificacao).filter(tb_classificacao.classificacao_id == id).first())
@@ -95,6 +100,11 @@ class FilmeRepository:
         classificacao_obj.id = classificacao.classificacao_id
         return classificacao_obj
     
+    def map_classificacao_to_tb_model(self, classificacao: Classificacao):
+        classificacao_tb_model = tb_classificacao(descricao=classificacao.descricao)
+        classificacao_tb_model.classificacao_id = classificacao.id
+        return classificacao_tb_model
+    
     def add_class(self, classi: tb_classificacao):
         self.db.add(classi)
         self.db.commit()
@@ -104,6 +114,9 @@ class FilmeRepository:
     def get_pais_by_id(self, id: int):
         return self.map_pais_to_obj(self.db.query(tb_pais).filter(tb_pais.pais_id == id).first())
     
+    def get_pais_by_name(self, name: str):
+        return self.db.query(tb_pais).filter(tb_pais.nome == name).first()
+    
     def get_all_pais(self):
         paises = self.db.query(tb_pais).all()
         return [self.map_pais_to_obj(p) for p in paises]
@@ -112,6 +125,11 @@ class FilmeRepository:
         pais_obj = Pais(pais.nome)
         pais_obj.id = pais.pais_id
         return pais_obj
+    
+    def map_pais_to_tb_model(self, pais: Pais):
+        pais_tb_model = tb_pais(nome=pais.descricao)
+        pais_tb_model.pais_id = pais.id
+        return pais_tb_model
 
 
 #---Genero
@@ -126,6 +144,11 @@ class FilmeRepository:
         genero_obj = Genero(genero.descricao)
         genero_obj.id = genero.genero_id
         return genero_obj
+    
+    def map_genero_to_tb_model(self, genero: Genero):
+        genero_tb_model = tb_genero(descricao=genero.descricao)
+        genero_tb_model.genero_id = genero.id
+        return genero_tb_model
     
 
 #---Filme_Genero

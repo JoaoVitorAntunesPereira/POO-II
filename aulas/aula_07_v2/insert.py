@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from filme_repository import FilmeRepository
+
+fr = FilmeRepository()
 
 from filme_db_models import (
     Base,
@@ -27,7 +30,7 @@ paises = {
     "REINO_UNIDO": tb_pais(nome="Reino Unido"),
     "JAPAO": tb_pais(nome="Japão"),
 }
-#session.add_all(paises.values())
+session.add_all(paises.values())
 
 # 2. Inserir Diretores
 diretores = {
@@ -37,7 +40,7 @@ diretores = {
     4: tb_diretor(nome="Hayao Miyazaki"),
     5: tb_diretor(nome="James Cameron"),
 }
-#session.add_all(diretores.values())
+session.add_all(diretores.values())
 
 # 3. Inserir Classificações
 classificacoes = {
@@ -47,7 +50,7 @@ classificacoes = {
     "IDADE_16": tb_classificacao(descricao="16 anos"),
     "IDADE_18": tb_classificacao(descricao="18 anos"),
 }
-#session.add_all(classificacoes.values())
+session.add_all(classificacoes.values())
 
 # 4. Inserir Gêneros
 generos = {
@@ -60,13 +63,11 @@ generos = {
     "AVENTURA": tb_genero(descricao="Aventura"),
     "FICCAO_CIENTIFICA": tb_genero(descricao="Ficção Científica"),
 }
-#session.add_all(generos.values())
-#session.commit()
+session.add_all(generos.values())
+session.commit()
 
 # Helper para buscar objetos
-def get_pais(nome): return next(p for p in paises.values() if p.nome == nome)
-def get_genero(desc): return next(g for g in generos.values() if g.descricao == desc)
-def get_classificacao(desc): return next(c for c in classificacoes.values() if c.descricao == desc)
+
 
 # 5. Inserir Filmes
 filmes = [
@@ -77,9 +78,8 @@ filmes = [
         duracao=180,
         is_active=True,
         diretor=diretores[1],
-        classificacao=get_classificacao("14 anos"),
-        pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Drama"), get_genero("Suspense")],
+        classificacao_id=fr.map_classificacao_to_tb_model(fr.get_classificacao_by_id(3)).classificacao_id,
+        pais_estreia_id=1,
         sinopse="A história de J. Robert Oppenheimer, o físico teórico que liderou o Projeto Manhattan e desenvolveu a primeira bomba atômica durante a Segunda Guerra Mundial."
     ),
     tb_filme(
@@ -89,9 +89,8 @@ filmes = [
         duracao=114,
         is_active=True,
         diretor=diretores[2],
-        classificacao=get_classificacao("12 anos"),
-        pais_estreia=get_pais("Reino Unido"),
-        generos=[get_genero("Comédia"), get_genero("Fantasia")],
+        classificacao_id=fr.map_classificacao_to_tb_model(fr.get_classificacao_by_id(2)).classificacao_id,
+        pais_estreia_id=2,
         sinopse="Em Barbieland, tudo é perfeito — até que Barbie começa a questionar sua existência e parte para o mundo real em uma jornada de autoconhecimento e empoderamento."
     ),
     tb_filme(
@@ -101,9 +100,8 @@ filmes = [
         duracao=116,
         is_active=True,
         diretor=diretores[3],
-        classificacao=get_classificacao("16 anos"),
-        pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Terror"), get_genero("Suspense")],
+        classificacao_id=fr.map_classificacao_to_tb_model(fr.get_classificacao_by_id(4)).classificacao_id,
+        pais_estreia_id=1,
         sinopse="Uma família é aterrorizada por seus duplos durante uma viagem de férias, revelando um mistério perturbador sobre identidade e sociedade."
     ),
     tb_filme(
@@ -113,9 +111,8 @@ filmes = [
         duracao=125,
         is_active=True,
         diretor=diretores[4],
-        classificacao=get_classificacao("Livre"),
-        pais_estreia=get_pais("Japão"),
-        generos=[get_genero("Fantasia"), get_genero("Animação")],
+        classificacao_id=fr.map_classificacao_to_tb_model(fr.get_classificacao_by_id(1)).classificacao_id,
+        pais_estreia_id=3,
         sinopse="Chihiro, uma garota de 10 anos, entra em um mundo mágico governado por espíritos, onde precisa resgatar seus pais e encontrar coragem para crescer."
     ),
     tb_filme(
@@ -125,9 +122,8 @@ filmes = [
         duracao=162,
         is_active=True,
         diretor=diretores[5],
-        classificacao=get_classificacao("12 anos"),
-        pais_estreia=get_pais("EUA"),
-        generos=[get_genero("Aventura"), get_genero("Ficção Científica")],
+        classificacao_id=fr.map_classificacao_to_tb_model(fr.get_classificacao_by_id(1)).classificacao_id,
+        pais_estreia_id=1,
         sinopse="Em Pandora, um ex-fuzileiro se infiltra entre os Na'vi através de um avatar e se vê dividido entre sua missão e a defesa de um novo mundo."
     )
 ]
@@ -147,7 +143,23 @@ filmes_paises_origem = {
 
 for filme in filmes:
     for nome_pais in filmes_paises_origem[filme.titulo]:
-        session.add(tb_filme_pais_origem(filme_id=filme.filme_id, pais_id=get_pais(nome_pais).pais_id))
+        session.add(tb_filme_pais_origem(filme_id=filme.filme_id, pais_id=fr.get_pais_by_name(nome_pais).pais_id))
 
+session.commit()
+
+# 7. Inserir Gêneros (relacionamento N:N)
+
+filmes_generos = {
+    1: [1, 2],      
+    2: [3, 4],      
+    3: [5, 2],      
+    4: [4, 6],       
+    5: [7, 8]        
+}
+
+
+for filme in filmes:
+    for id_genero in filmes_generos[filme.filme_id]:
+        session.add(tb_filme_genero(filme_id=filme.filme_id, genero_id=id_genero))
 session.commit()
 session.close()
