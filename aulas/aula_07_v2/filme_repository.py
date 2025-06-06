@@ -49,6 +49,9 @@ class FilmeRepository:
             paises_origem=paises_origem_list,
             sinopse=filme.sinopse
         )
+        
+        filme_obj.id = filme.filme_id
+        
         return filme_obj
 
     def add_filme(self, filme_obj: Filme):

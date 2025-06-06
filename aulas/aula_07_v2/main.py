@@ -139,7 +139,7 @@ def exibir_filme(filme_id: int):
         with ui.row():
             ui.label("Estreia").classes("text-gray-600 text-sm")
             if filme.data_estreia:
-                estreia_text = f"{filme.data_estreia.strftime('%d/%m/%Y')} - {filme.pais_estreia}"
+                estreia_text = f"{filme.data_estreia.strftime('%d/%m/%Y')} - {filme.pais_estreia.descricao}"
             else:
                 estreia_text = "Desconhecida"
             ui.label(estreia_text).classes("text-base mb-4")
@@ -150,20 +150,20 @@ def exibir_filme(filme_id: int):
 
         with ui.row():
             ui.label("Classificação").classes("text-gray-600 text-sm")
-            classificacao_text = filme.classificacao.name.replace("_", " ").capitalize()
+            classificacao_text = filme.classificacao.descricao.capitalize()
             ui.label(classificacao_text).classes("text-white bg-black px-2 py-1 rounded w-fit mb-4")
 
         with ui.row():
             ui.label("Gênero").classes("text-gray-600 text-sm")
             with ui.row().classes("mb-4"):
-                for genero in filme.genero:
-                    ui.label(genero.value).classes("bg-gray-300 rounded px-2 py-1 text-sm")
+                for genero in filme.generos:
+                    ui.label(genero.descricao).classes("bg-gray-300 rounded px-2 py-1 text-sm")
 
         with ui.row():
             ui.label("Países de Origem").classes("text-gray-600 text-sm")
             with ui.row().classes("mb-4"):
                 for pais in filme.paises_origem:
-                    ui.label(pais).classes("bg-gray-200 rounded px-2 py-1 text-sm")
+                    ui.label(pais.descricao).classes("bg-gray-200 rounded px-2 py-1 text-sm")
 
         ui.label("Sinopse").classes("text-gray-600 text-base font-semibold mt-4")
         ui.label(filme.sinopse).classes("text-base text-justify mt-2")
