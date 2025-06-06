@@ -1,221 +1,172 @@
-from nicegui import ui, app
-from filme_obj_models import Diretor,Filme, Genero, Classificacao
-from datetime import datetime
-#from dados import dados_filmes, diretor1, diretor2, diretor3, diretor4, diretor5
+from nicegui import ui
+from filme_obj_models import Diretor, Filme, Genero, Classificacao, Pais
+from filme_controller import FilmeController
+from datetime import datetime, date
 
+filme_controller = FilmeController()
 
-generos = [genero.value for genero in Genero]
-classificacoes = []
+filmes = filme_controller.listar_filmes()
 
-filmes = list(dados_filmes)
-
-
-def classificacao_to_text():
-    for c in Classificacao:
-        if c.value == 0:
-            text = "Livre"
-            classificacoes.append(text)
-        else:
-            text = "Proibido para menores de " + str(c.value)
-            classificacoes.append(text)
-
-def classificacao_map(classificacao: str):
-    classificacao_mapa = {
-        "Livre": Classificacao.LIVRE,
-        "Proibido para menores de 10": Classificacao.IDADE_10,
-        "Proibido para menores de 12": Classificacao.IDADE_12,
-        "Proibido para menores de 14": Classificacao.IDADE_14,
-        "Proibido para menores de 16": Classificacao.IDADE_16,
-        "Proibido para menores de 18": Classificacao.IDADE_18
+def classificacao_map():
+    classificacoes = filme_controller.listar_classificacoes()
+    mapa = {
+        "Livre": classificacoes[0],
+        "Proibido para menores de 10 anos": classificacoes[5],
+        "Proibido para menores de 12 anos": classificacoes[1],
+        "Proibido para menores de 14 anos": classificacoes[2],
+        "Proibido para menores de 16 anos": classificacoes[3],
+        "Proibido para menores de 18 anos": classificacoes[4]
     }
-    
-    return classificacao_mapa.get(classificacao, None)
+    return classificacoes
 
+classificacoes = classificacao_map()
 
+generos = filme_controller.listar_generos()
 
+def get_filme_by_id(filme_id: int):
+    for filme in filmes:
+        if filme.id == filme_id:
+            return filme
 
-classificacao_to_text()
 
 @ui.page("/cadastrar-filme")
 def cadastrar_filme():
-
-    estreias: list[Estreia] = []
-
     def data_lancamento_func():
-        with ui.input('Date') as date:
+        with ui.input('Data de Estreia') as date_input:
             with ui.menu().props('no-parent-event') as menu:
-                with ui.date().bind_value(date):
+                with ui.date().bind_value(date_input):
                     with ui.row().classes('justify-end'):
                         ui.button('Fechar', on_click=menu.close).props('flat')
-            with date.add_slot('append'):
+            with date_input.add_slot('append'):
                 ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
-        return date
+        return date_input
 
-    with ui.row():
-        with ui.column():
-            ui.label("Cadastrar Filme").classes(replace='text-lg')
+    ui.label("Cadastro de Filme").classes('text-2xl font-bold mb-4')
 
+    with ui.card().classes('w-full max-w-2xl mx-auto p-10 shadow-lg'):
+        with ui.grid(columns=2).classes('gap-4'):
             titulo = ui.input(label="Título")
             ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year)
             diretor = ui.input(label="Diretor")
             duracao = ui.number(label="Duração (minutos)")
-            sinopse = ui.textarea(label="Sinopse")
-            ui.label("Países de Origem (separados por vírgula)")
-            paises_origem = ui.input(label="Países de origem")
+            #pais_estreia = ui.select(paises, multiple=False, label="País de estreia").classes("w-64")
+            data_lancamento = data_lancamento_func()
 
-            # ESTREIAS
-            ui.label("Adicionar Estreias").classes('text-base text-gray-700')
-            estreia_pais = ui.input(label="País de estreia")
-            estreia_data = data_lancamento_func()
+            with ui.column():
+                ui.label("Classificação indicativa").classes('text-base font-medium')
+                classificacao_radio = ui.radio(classificacoes, value=classificacoes[0])
 
-            def adicionar_estreia():
-                nova_estreia = Estreia(data=estreia_data.value, pais=estreia_pais.value)
-                estreias.append(nova_estreia)
-                ui.notify(f"Estreia adicionada: {nova_estreia.pais} - {nova_estreia.data}", type='positive')
+            with ui.column():
+                generos_select = ui.select(generos, multiple=True, value=generos[0], label="Gêneros").classes('w-full')
+                #paises_origem = ui.select(paises, multiple=True, label="Países de origem").classes("w-64")
+                sinopse = ui.textarea(label="Sinopse")
 
-            ui.button("Adicionar Estreia", on_click=adicionar_estreia).props('outline')
+        def enviar_filme():
+            novo_id = max([f.id for f in filmes]) + 1 if filmes else 1
 
-        with ui.column():
-            ui.label("Classificação indicativa")
-            classificacao_radio = ui.radio(classificacoes, value=classificacoes[0])
+            data_estreia = data_lancamento.value
+            # Conversão para datetime caso seja string ou date
+            if isinstance(data_estreia, str):
+                try:
+                    data_estreia = datetime.strptime(data_estreia, "%Y-%m-%d")
+                except ValueError:
+                    data_estreia = None  # Caso não consiga converter, seta None
+            elif isinstance(data_estreia, date) and not isinstance(data_estreia, datetime):
+                data_estreia = datetime.combine(data_estreia, datetime.min.time())
 
-            ui.label("Gêneros")
-            generos_select = ui.select(generos, multiple=True, value=generos[0], label='comma-separated').classes('w-64')
+            filme = Filme(
+                titulo=titulo.value,
+                ano_producao=ano_producao.value,
+                diretor=Diretor(nome=diretor.value),
+                data_estreia=data_estreia,
+               #pais_estreia=pais_estreia.value,
+                duracao=duracao.value,
+                classificacao=classificacao_map(classificacao_radio.value),
+                genero={Genero(g) for g in generos_select.value},
+                #paises_origem=paises_origem.value,
+                sinopse=sinopse.value
+            )
+            filme.id = novo_id
+            filmes.append(filme)
+            ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
 
-            def enviar_filme():
-                titulo_value = titulo.value
-                ano_producao_value = ano_producao.value
-                diretor_value = diretor.value
-                duracao_value = duracao.value
-                sinopse_value = sinopse.value
-                paises_origem_value = paises_origem.value.split(',') 
-                classificacao_value = classificacao_radio.value
+        ui.button("Cadastrar Filme", on_click=enviar_filme).classes('mt-4 bg-blue-500 text-white')
 
-                diretor_obj = Diretor(nome=diretor_value)
-                classificacao_obj = Classificacao(classificacao_map(classificacao_value))
-
-                
-                generos_valores = set(Genero(g) for g in generos_select.value)
-
-                filme = Filme(
-                    titulo=titulo_value,
-                    ano_producao=ano_producao_value,
-                    diretor=diretor_obj,
-                    estreia=set(estreias),
-                    duracao=duracao_value,
-                    classificacao=classificacao_obj,
-                    genero=generos_valores,
-                    paises_origem=set(paises_origem_value),
-                    sinopse=sinopse_value
-                )
-
-                filmes.append(filme)
-                ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
-
-            ui.button("Cadastrar Filme", on_click=enviar_filme)
 
 @ui.page("/listar")
 def listar():
+    ui.label("Lista de Filmes").classes('text-2xl font-bold mb-4')
+
     if filmes:
-        dados_tabela = []
-
         for filme in filmes:
-            generos_text = ', '.join(g.value for g in filme.genero)
-            paises_origem_text = ', '.join(filme.paises_origem)
-            classificacao_text = (
-                "Livre" if filme.classificacao == Classificacao.LIVRE
-                else f"Proibido para menores de {filme.classificacao.value}"
-            )
-
-            estreias_text = '\n'.join(
-                f"{e.data.strftime('%d/%m/%Y')} ({e.pais})" if isinstance(e.data, datetime) else f"{e.data} ({e.pais})"
-                for e in filme.estreia
-            )
-
-
-            dados_tabela.append({
-                "Título": filme.titulo,
-                "Ano": filme.ano_producao,
-                "Diretor": filme.diretor.nome,
-                "Classificação": classificacao_text,
-                "Gêneros": generos_text,
-                "Origem": paises_origem_text,
-                "Estreias": estreias_text,
-                "Duração (min)": filme.duracao,
-                "Sinopse": filme.sinopse
-            })
-
-        colunas = [
-            {'name': 'Título', 'label': 'Título', 'field': 'Título', 'align': 'left'},
-            {'name': 'Ano', 'label': 'Ano', 'field': 'Ano', 'align': 'left'},
-            {'name': 'Diretor', 'label': 'Diretor', 'field': 'Diretor', 'align': 'left'},
-            {'name': 'Classificação', 'label': 'Classificação', 'field': 'Classificação', 'align': 'left'},
-            {'name': 'Gêneros', 'label': 'Gêneros', 'field': 'Gêneros', 'align': 'left'},
-            {'name': 'Origem', 'label': 'Países de Origem', 'field': 'Origem', 'align': 'left'},
-            {'name': 'Estreias', 'label': 'Estreias', 'field': 'Estreias', 'align': 'left'},
-            {'name': 'Duração (min)', 'label': 'Duração', 'field': 'Duração (min)', 'align': 'left'},
-            {'name': 'Sinopse', 'label': 'Sinopse', 'field': 'Sinopse', 'align': 'left'},
-        ]
-
-        ui.table(columns=colunas, rows=dados_tabela, row_key='Título').classes('w-full')
+            with ui.card().classes('mb-4 shadow-md max-w-3xl'):
+                ui.link(f"{filme.titulo}", f"/exibir_filme/{filme.id}").classes('text-xl text-blue-600')
+                ui.label(f"Ano de Produção: {filme.ano_producao}")
+                ui.label(f"Diretor: {filme.diretor.nome}")
+                ui.label(f"Classificação: {filme.classificacao.descricao.capitalize()}")
+                generos_text = ", ".join([g.descricao for g in filme.generos])
+                ui.label(f"Gêneros: {generos_text}")
+                ui.label(f"Países de Origem: {', '.join(p.descricao for p in filme.paises_origem)}")
+                if filme.data_estreia:
+                    ui.label(f"Estreia: {filme.data_estreia.strftime('%d/%m/%Y')} - País: {filme.pais_estreia.descricao}")
+                else:
+                    ui.label(f"Estreia: Desconhecida - País: {filme.pais_estreia.descricao}")
+                ui.label(f"Sinopse: {filme.sinopse}")
     else:
-        ui.label("A lista de filmes está vazia.")
-
-#ui.run()
+        ui.label("A lista de filmes está vazia.").classes('text-red-500')
 
 
+@ui.page("/exibir_filme/{filme_id}")
+def exibir_filme(filme_id: int):
+    filme = get_filme_by_id(filme_id)
+    if not filme:
+        ui.label("Filme não encontrado.").classes("text-red-500")
+        return
+
+    with ui.card().classes('w-full max-w-2xl mx-auto mt-8 p-6 shadow-lg rounded-lg bg-white'):
+        with ui.row():
+            ui.label("Título").classes("text-gray-600 text-sm mt-1")
+            ui.label(filme.titulo).classes("text-lg font-semibold mb-4")
+
+        with ui.row():
+            ui.label("Ano produção").classes("text-gray-600 text-sm mt-1")
+            ui.label(str(filme.ano_producao)).classes("text-base mb-4")
+
+        with ui.row():
+            ui.label("Dirigido por").classes("text-gray-600 text-sm")
+            ui.label(filme.diretor.nome).classes("text-base bg-gray-200 rounded px-2 py-1 w-fit mb-4")
+
+        with ui.row():
+            ui.label("Estreia").classes("text-gray-600 text-sm")
+            if filme.data_estreia:
+                estreia_text = f"{filme.data_estreia.strftime('%d/%m/%Y')} - {filme.pais_estreia}"
+            else:
+                estreia_text = "Desconhecida"
+            ui.label(estreia_text).classes("text-base mb-4")
+
+        with ui.row():
+            ui.label("Duração").classes("text-gray-600 text-sm")
+            ui.label(f"{filme.duracao} min").classes("text-base mb-4")
+
+        with ui.row():
+            ui.label("Classificação").classes("text-gray-600 text-sm")
+            classificacao_text = filme.classificacao.name.replace("_", " ").capitalize()
+            ui.label(classificacao_text).classes("text-white bg-black px-2 py-1 rounded w-fit mb-4")
+
+        with ui.row():
+            ui.label("Gênero").classes("text-gray-600 text-sm")
+            with ui.row().classes("mb-4"):
+                for genero in filme.genero:
+                    ui.label(genero.value).classes("bg-gray-300 rounded px-2 py-1 text-sm")
+
+        with ui.row():
+            ui.label("Países de Origem").classes("text-gray-600 text-sm")
+            with ui.row().classes("mb-4"):
+                for pais in filme.paises_origem:
+                    ui.label(pais).classes("bg-gray-200 rounded px-2 py-1 text-sm")
+
+        ui.label("Sinopse").classes("text-gray-600 text-base font-semibold mt-4")
+        ui.label(filme.sinopse).classes("text-base text-justify mt-2")
 
 
-if __name__ == "__main__":
-    from rich import print
-    from filme_controller import FilmeController
-
-    filme_controller = FilmeController()
-    
-    #for filme in filme_controller.listar_filmes():
-    #    print("Título: " + filme.titulo)
-    
-    for diretor in filme_controller.listar_diretores():
-        print(diretor.nome)
-        
-    for classificacao in filme_controller.listar_classificacoes():
-        print(classificacao.descricao)
-    
-    # Initialize Database
-    #test_create_movie() # teste de inserção de um filme
-    #test_delete_movie(1)
-    
-    #db = SessionLocal() # db == database == banco de dados
-    #filme = crud.get_filme(db, filme_id=2)
-    #filme.titulo = "Avatar updated"
-    #crud.update_filme(db, filme)
-
-    #def test_add_filme():
-    #    db = SessionLocal()
-#
-    #    for filme in filmes:
-    #        add_filme(db, filme)
-#
-    #def test_list_filmes():
-    #    db = SessionLocal()
-    #    
-    #    for filme in get_filmes(db):
-    #        print("Titulo: " + filme.titulo)
-#
-    #def test_add_diretores():
-    #    db = SessionLocal()
-    #    add_diretor(db, diretor1)
-    #    add_diretor(db, diretor2)
-    #    add_diretor(db, diretor3)
-    #    add_diretor(db, diretor4)
-    #    add_diretor(db, diretor5)
-
-    #test_add_diretores()
-
-
-    #test_add_filme()
-
-    ##test_list_filmes() # select all
-
-    #print(results)
-    
+ui.run()

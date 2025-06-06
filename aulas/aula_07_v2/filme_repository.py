@@ -16,6 +16,9 @@ class FilmeRepository:
             filme_list.append(self.map_filme_to_obj(filme))
         return filme_list
     
+    def get_filme_by_id(self, id: int):
+        return self.map_filme_to_obj(self.db.query(tb_filme).filter(tb_filme.filme_id == id).first())
+    
     def map_filme_to_obj(self, filme: tb_filme):
         diretor_obj = self.get_diretor_by_id(filme.diretor_id)
         classificacao_obj = self.get_classificacao_by_id(filme.classificacao_id)
@@ -32,12 +35,14 @@ class FilmeRepository:
             pais_obj.id = p.pais_id
             paises_origem_list.append(pais_obj)
         
+        pais_estreia_obj = self.map_pais_to_obj(filme.pais_estreia)
+        
         filme_obj = Filme(
             titulo=filme.titulo,
             ano_producao=filme.ano_producao,
             diretor=diretor_obj,
             data_estreia=filme.data_estreia,
-            pais_estreia=filme.pais_estreia,
+            pais_estreia=pais_estreia_obj,
             duracao=filme.duracao,
             classificacao=classificacao_obj,
             generos=generos_obj_list,

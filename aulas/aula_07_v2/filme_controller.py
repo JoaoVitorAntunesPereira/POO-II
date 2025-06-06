@@ -7,7 +7,7 @@ class FilmeController:
         self.filme_repository = FilmeRepository()
         
     def listar_filmes(self):
-        return self.filme_repository.get_filmes()
+        return self.filme_repository.get_all_filmes()
     
     def buscar_filme_por_id(self, id: int):
         return self.filme_repository.get_filme_by_id(id)
