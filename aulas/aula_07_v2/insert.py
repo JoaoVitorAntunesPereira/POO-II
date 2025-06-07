@@ -30,7 +30,7 @@ paises = {
     "REINO_UNIDO": tb_pais(nome="Reino Unido"),
     "JAPAO": tb_pais(nome="Japão"),
 }
-session.add_all(paises.values())
+#session.add_all(paises.values())
 
 # 2. Inserir Diretores
 diretores = {
@@ -40,7 +40,7 @@ diretores = {
     4: tb_diretor(nome="Hayao Miyazaki"),
     5: tb_diretor(nome="James Cameron"),
 }
-session.add_all(diretores.values())
+#session.add_all(diretores.values())
 
 # 3. Inserir Classificações
 classificacoes = {
@@ -50,7 +50,7 @@ classificacoes = {
     "IDADE_16": tb_classificacao(descricao="16 anos"),
     "IDADE_18": tb_classificacao(descricao="18 anos"),
 }
-session.add_all(classificacoes.values())
+#session.add_all(classificacoes.values())
 
 # 4. Inserir Gêneros
 generos = {
@@ -63,8 +63,8 @@ generos = {
     "AVENTURA": tb_genero(descricao="Aventura"),
     "FICCAO_CIENTIFICA": tb_genero(descricao="Ficção Científica"),
 }
-session.add_all(generos.values())
-session.commit()
+#session.add_all(generos.values())
+#session.commit()
 
 # Helper para buscar objetos
 
@@ -129,8 +129,8 @@ filmes = [
 ]
 
 
-session.add_all(filmes)
-session.commit()
+#session.add_all(filmes)
+#session.commit()
 
 # 6. Inserir Países de origem (relacionamento N:N)
 filmes_paises_origem = {
@@ -145,7 +145,7 @@ for filme in filmes:
     for nome_pais in filmes_paises_origem[filme.titulo]:
         session.add(tb_filme_pais_origem(filme_id=filme.filme_id, pais_id=fr.get_pais_by_name(nome_pais).pais_id))
 
-session.commit()
+#session.commit()
 
 # 7. Inserir Gêneros (relacionamento N:N)
 
@@ -161,5 +161,5 @@ filmes_generos = {
 for filme in filmes:
     for id_genero in filmes_generos[filme.filme_id]:
         session.add(tb_filme_genero(filme_id=filme.filme_id, genero_id=id_genero))
-session.commit()
-session.close()
+#session.commit()
+#session.close()

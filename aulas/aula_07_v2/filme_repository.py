@@ -55,17 +55,32 @@ class FilmeRepository:
         return filme_obj
 
     def add_filme(self, filme_obj: Filme):
-        print("ID do diretor recebido:", filme_obj.diretor.id)
-        generos_str = ', '.join(g.value for g in filme_obj.genero)
-        diretor = self.get_diretor_by_id(filme_obj.diretor.id)
         filme = tb_filme(
             titulo=filme_obj.titulo,
             ano_producao=filme_obj.ano_producao,
-            generos=generos_str,
-            diretor=diretor
+            data_estreia=filme_obj.data_estreia,
+            duracao=filme_obj.duracao,
+            sinopse=filme_obj.sinopse,
+            diretor_id=filme_obj.diretor.id,
+            classificacao_id=filme_obj.classificacao.id,
+            pais_estreia_id=filme_obj.pais_estreia.id
         )
         self.db.add(filme)
         self.db.commit()
+        self.db.refresh(filme)
+        
+        
+        for g in filme_obj.generos:
+            self.db.add(filme.filme_id, g.id)
+        self.db.commit()
+        
+        for p in filme_obj.paises_origem:
+            self.db.add(filme.filme_id, p.id)   
+        self.db.commit() 
+        
+            
+        
+        
 
 
 #---Diretor

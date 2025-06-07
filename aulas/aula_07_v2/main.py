@@ -17,11 +17,11 @@ def classificacao_map():
         "Proibido para menores de 16 anos": classificacoes[3],
         "Proibido para menores de 18 anos": classificacoes[4]
     }
-    return classificacoes
+    return mapa
 
-classificacoes = classificacao_map()
-
+classificacoes = filme_controller.listar_classificacoes()
 generos = filme_controller.listar_generos()
+paises = filme_controller.listar_paises()
 
 def get_filme_by_id(filme_id: int):
     for filme in filmes:
@@ -49,28 +49,30 @@ def cadastrar_filme():
             ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year)
             diretor = ui.input(label="Diretor")
             duracao = ui.number(label="Duração (minutos)")
-            #pais_estreia = ui.select(paises, multiple=False, label="País de estreia").classes("w-64")
+            paises_string = [p.descricao for p in paises]
+            pais_estreia = ui.select(paises_string, multiple=False, label="País de estreia").classes("w-64")
             data_lancamento = data_lancamento_func()
 
             with ui.column():
                 ui.label("Classificação indicativa").classes('text-base font-medium')
-                classificacao_radio = ui.radio(classificacoes, value=classificacoes[0])
+                classificacoes_str = [c.descricao for c in classificacoes]
+                classificacao_radio = ui.radio(classificacoes_str, value=classificacoes_str[0])
 
             with ui.column():
-                generos_select = ui.select(generos, multiple=True, value=generos[0], label="Gêneros").classes('w-full')
-                #paises_origem = ui.select(paises, multiple=True, label="Países de origem").classes("w-64")
+                generos_str = [g.descricao for g in generos]
+                generos_select = ui.select(generos_str, multiple=True, value=generos[0], label="Gêneros").classes('w-full')
+                paises_origem = ui.select(paises_string, multiple=True, label="Países de origem").classes("w-64")
                 sinopse = ui.textarea(label="Sinopse")
 
         def enviar_filme():
-            novo_id = max([f.id for f in filmes]) + 1 if filmes else 1
 
             data_estreia = data_lancamento.value
-            # Conversão para datetime caso seja string ou date
+            
             if isinstance(data_estreia, str):
                 try:
                     data_estreia = datetime.strptime(data_estreia, "%Y-%m-%d")
                 except ValueError:
-                    data_estreia = None  # Caso não consiga converter, seta None
+                    data_estreia = None  
             elif isinstance(data_estreia, date) and not isinstance(data_estreia, datetime):
                 data_estreia = datetime.combine(data_estreia, datetime.min.time())
 
@@ -79,15 +81,14 @@ def cadastrar_filme():
                 ano_producao=ano_producao.value,
                 diretor=Diretor(nome=diretor.value),
                 data_estreia=data_estreia,
-               #pais_estreia=pais_estreia.value,
+                pais_estreia=pais_estreia.value,
                 duracao=duracao.value,
-                classificacao=classificacao_map(classificacao_radio.value),
-                genero={Genero(g) for g in generos_select.value},
-                #paises_origem=paises_origem.value,
+                classificacao=classificacao_radio.value,
+                generos={Genero(g) for g in generos_select.value},
+                paises_origem=paises_origem.value,
                 sinopse=sinopse.value
             )
-            filme.id = novo_id
-            filmes.append(filme)
+            filme_controller.adicionar_filme((filme))
             ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
 
         ui.button("Cadastrar Filme", on_click=enviar_filme).classes('mt-4 bg-blue-500 text-white')
