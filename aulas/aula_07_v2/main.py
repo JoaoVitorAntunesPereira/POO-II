@@ -68,8 +68,11 @@ def cadastrar_filme():
                 classificacao_radio = ui.radio(opcoes_classificacao, value='Livre')
 
             with ui.column():
-                generos_str = [g.descricao for g in generos]
-                generos_select = ui.select(generos_str, multiple=True, value=generos[0], label="Gêneros").classes('w-full')
+                generos = filme_controller.listar_generos()
+                mapa_generos = {g.descricao: g for g in generos}
+                nomes_generos = list(mapa_generos.keys())
+                generos_select = ui.select(nomes_generos, multiple=True, value=[nomes_generos[0]], label="Gêneros").classes('w-full')
+
                 paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64")
                 sinopse = ui.textarea(label="Sinopse")
 
@@ -93,7 +96,7 @@ def cadastrar_filme():
                 pais_estreia=mapa_paises[pais_estreia.value],
                 duracao=duracao.value,
                 classificacao=mapa_classificacoes[classificacao_radio.value],
-                generos={Genero(g) for g in generos_select.value},
+                generos={mapa_generos[g] for g in generos_select.value},
                 paises_origem={mapa_paises[p] for p in paises_origem.value},
                 sinopse=sinopse.value
             )
@@ -102,7 +105,7 @@ def cadastrar_filme():
             print(f"Ano de Produção: {filme.ano_producao}")
             print(f"Diretor: {filme.diretor.nome} (ID: {filme.diretor.id})")
             print(f"Data de Estreia: {filme.data_estreia}")
-            print(f"País de Estreia: {filme.pais_estreia.nome} (ID: {filme.pais_estreia.id})")
+            print(f"País de Estreia: {filme.pais_estreia.descricao} (ID: {filme.pais_estreia.id})")
             print(f"Duração: {filme.duracao} minutos")
             print(f"Classificação: {filme.classificacao.descricao} (ID: {filme.classificacao.id})")
             print("Gêneros:")
@@ -110,7 +113,7 @@ def cadastrar_filme():
                 print(f" - {genero.descricao} (ID: {genero.id})")
             print("Países de Origem:")
             for pais in filme.paises_origem:
-                print(f" - {pais.nome} (ID: {pais.id})")
+                print(f" - {pais.descricao} (ID: {pais.id})")
             print(f"Sinopse: {filme.sinopse}")
             print("========================")
             filme_controller.adicionar_filme((filme))
