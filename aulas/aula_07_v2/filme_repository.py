@@ -54,30 +54,35 @@ class FilmeRepository:
         
         return filme_obj
 
-    def add_filme(self, filme_obj: Filme):
-        filme = tb_filme(
+    def add_filme(self, filme_obj):
+        #---Recupera os objetos mapeados do banco
+        diretor_db = self.db.query(tb_diretor).get(filme_obj.diretor.id)
+        classificacao_db = self.db.query(tb_classificacao).get(filme_obj.classificacao.id)
+        pais_estreia_db = self.db.query(tb_pais).get(filme_obj.pais_estreia.id)
+
+        #---Converte lista de generos e países de origem
+        generos_db = [self.db.query(tb_genero).get(g.id) for g in filme_obj.generos]
+        paises_origem_db = [self.db.query(tb_pais).get(p.id) for p in filme_obj.paises_origem]
+
+        #---Cria o objeto do banco
+        filme_db = tb_filme(
             titulo=filme_obj.titulo,
             ano_producao=filme_obj.ano_producao,
             data_estreia=filme_obj.data_estreia,
             duracao=filme_obj.duracao,
             sinopse=filme_obj.sinopse,
-            diretor_id=filme_obj.diretor.id,
-            classificacao_id=filme_obj.classificacao.id,
-            pais_estreia_id=filme_obj.pais_estreia.id
+            is_active=True,
+            diretor=diretor_db,
+            classificacao=classificacao_db,
+            pais_estreia=pais_estreia_db
         )
-        self.db.add(filme)
+
+        #---Associa relacionamentos muitos-para-muitos
+        filme_db.generos.extend(generos_db)
+        filme_db.paises_origem.extend(paises_origem_db)
+
+        self.db.add(filme_db)
         self.db.commit()
-        self.db.refresh(filme)
-        
-        
-        for g in filme_obj.generos:
-            self.db.add(filme.filme_id, g.id)
-        self.db.commit()
-        
-        for p in filme_obj.paises_origem:
-            self.db.add(filme.filme_id, p.id)   
-        self.db.commit() 
-        
             
         
         

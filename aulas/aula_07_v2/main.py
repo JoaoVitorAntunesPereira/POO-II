@@ -21,7 +21,6 @@ def classificacao_map():
 
 classificacoes = filme_controller.listar_classificacoes()
 generos = filme_controller.listar_generos()
-paises = filme_controller.listar_paises()
 
 def get_filme_by_id(filme_id: int):
     for filme in filmes:
@@ -47,21 +46,31 @@ def cadastrar_filme():
         with ui.grid(columns=2).classes('gap-4'):
             titulo = ui.input(label="Título")
             ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year)
-            diretor = ui.input(label="Diretor")
+            
+            diretores = filme_controller.listar_diretores()
+            mapa_diretores = {d.nome: d for d in diretores}
+            nomes_diretores = list(mapa_diretores.keys())
+            diretor = ui.select(nomes_diretores, multiple=False, label="Diretor").classes("w-64")
+            
             duracao = ui.number(label="Duração (minutos)")
-            paises_string = [p.descricao for p in paises]
-            pais_estreia = ui.select(paises_string, multiple=False, label="País de estreia").classes("w-64")
+            
+            paises = filme_controller.listar_paises()
+            mapa_paises = {p.descricao: p for p in paises}
+            nomes_paises = list(mapa_paises.keys())      
+            pais_estreia = ui.select(nomes_paises, multiple=False, label="País de estreia").classes("w-64")
+            
             data_lancamento = data_lancamento_func()
 
             with ui.column():
                 ui.label("Classificação indicativa").classes('text-base font-medium')
-                classificacoes_str = [c.descricao for c in classificacoes]
-                classificacao_radio = ui.radio(classificacoes_str, value=classificacoes_str[0])
+                mapa_classificacoes = classificacao_map()
+                opcoes_classificacao = list(mapa_classificacoes.keys())
+                classificacao_radio = ui.radio(opcoes_classificacao, value='Livre')
 
             with ui.column():
                 generos_str = [g.descricao for g in generos]
                 generos_select = ui.select(generos_str, multiple=True, value=generos[0], label="Gêneros").classes('w-full')
-                paises_origem = ui.select(paises_string, multiple=True, label="Países de origem").classes("w-64")
+                paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64")
                 sinopse = ui.textarea(label="Sinopse")
 
         def enviar_filme():
@@ -79,15 +88,31 @@ def cadastrar_filme():
             filme = Filme(
                 titulo=titulo.value,
                 ano_producao=ano_producao.value,
-                diretor=Diretor(nome=diretor.value),
+                diretor=mapa_diretores[diretor.value],
                 data_estreia=data_estreia,
-                pais_estreia=pais_estreia.value,
+                pais_estreia=mapa_paises[pais_estreia.value],
                 duracao=duracao.value,
-                classificacao=classificacao_radio.value,
+                classificacao=mapa_classificacoes[classificacao_radio.value],
                 generos={Genero(g) for g in generos_select.value},
-                paises_origem=paises_origem.value,
+                paises_origem={mapa_paises[p] for p in paises_origem.value},
                 sinopse=sinopse.value
             )
+            print("==== DADOS DO FILME ====")
+            print(f"Título: {filme.titulo}")
+            print(f"Ano de Produção: {filme.ano_producao}")
+            print(f"Diretor: {filme.diretor.nome} (ID: {filme.diretor.id})")
+            print(f"Data de Estreia: {filme.data_estreia}")
+            print(f"País de Estreia: {filme.pais_estreia.nome} (ID: {filme.pais_estreia.id})")
+            print(f"Duração: {filme.duracao} minutos")
+            print(f"Classificação: {filme.classificacao.descricao} (ID: {filme.classificacao.id})")
+            print("Gêneros:")
+            for genero in filme.generos:
+                print(f" - {genero.descricao} (ID: {genero.id})")
+            print("Países de Origem:")
+            for pais in filme.paises_origem:
+                print(f" - {pais.nome} (ID: {pais.id})")
+            print(f"Sinopse: {filme.sinopse}")
+            print("========================")
             filme_controller.adicionar_filme((filme))
             ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
 
