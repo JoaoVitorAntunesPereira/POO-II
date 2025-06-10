@@ -27,9 +27,22 @@ def get_filme_by_id(filme_id: int):
         if filme.id == filme_id:
             return filme
 
+@ui.page("/editar/{filme_id}")
+def editar(filme_id: str):
+    ui.timer(0.1, lambda: ui.navigate.to(f"/formulario/{filme_id}"), once=True)
 
 @ui.page("/cadastrar-filme")
 def cadastrar_filme():
+    ui.timer(0.1, lambda: ui.navigate.to(f"/formulario/{0}"), once=True)
+
+@ui.page("/formulario/{filme_id}")
+def cadastrar_filme(filme_id: int):
+    
+    filme_edit = None
+    
+    if filme_id != 0:
+        filme_edit = filme_controller.buscar_filme_por_id(filme_id)
+    
     def data_lancamento_func():
         with ui.input('Data de Estreia') as date_input:
             with ui.menu().props('no-parent-event') as menu:
@@ -44,37 +57,54 @@ def cadastrar_filme():
 
     with ui.card().classes('w-full max-w-2xl mx-auto p-10 shadow-lg'):
         with ui.grid(columns=2).classes('gap-4'):
-            titulo = ui.input(label="Título")
-            ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year)
+            titulo = ui.input(label="Título").set_value(filme_edit.titulo if filme_edit else "")
+            ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year).set_value(filme_edit.ano_producao if filme_edit else None)
             
             diretores = filme_controller.listar_diretores()
             mapa_diretores = {d.nome: d for d in diretores}
             nomes_diretores = list(mapa_diretores.keys())
-            diretor = ui.select(nomes_diretores, multiple=False, label="Diretor").classes("w-64")
+            diretor = ui.select(nomes_diretores, multiple=False, label="Diretor").classes("w-64").set_value(filme_edit.diretor.nome if filme_edit else None)
             
-            duracao = ui.number(label="Duração (minutos)")
+            duracao = ui.number(label="Duração (minutos)").set_value(filme_edit.duracao if filme_edit else None)
             
             paises = filme_controller.listar_paises()
             mapa_paises = {p.descricao: p for p in paises}
             nomes_paises = list(mapa_paises.keys())      
-            pais_estreia = ui.select(nomes_paises, multiple=False, label="País de estreia").classes("w-64")
+            pais_estreia = ui.select(nomes_paises, multiple=False, label="País de estreia").classes("w-64").set_value(filme_edit.pais_estreia.descricao if filme_edit else None)
             
-            data_lancamento = data_lancamento_func()
+            data_lancamento = data_lancamento_func().set_value(filme_edit.data_estreia if filme_edit else None)
 
             with ui.column():
                 ui.label("Classificação indicativa").classes('text-base font-medium')
                 mapa_classificacoes = classificacao_map()
                 opcoes_classificacao = list(mapa_classificacoes.keys())
-                classificacao_radio = ui.radio(opcoes_classificacao, value='Livre')
+
+                chave_classificacao = None
+                if filme_edit:
+                    for k, v in mapa_classificacoes.items():
+                        if v.id == filme_edit.classificacao.id:
+                            chave_classificacao = k
+                            break
+                
+                classificacao_radio = ui.radio(opcoes_classificacao, value='Livre').set_value(chave_classificacao)
 
             with ui.column():
                 generos = filme_controller.listar_generos()
                 mapa_generos = {g.descricao: g for g in generos}
                 nomes_generos = list(mapa_generos.keys())
-                generos_select = ui.select(nomes_generos, multiple=True, value=[nomes_generos[0]], label="Gêneros").classes('w-full')
+                
+                chave_generos = None
+                if filme_edit:
+                   chave_generos = [k for k, v in mapa_generos.items() if v.id in {g.id for g in filme_edit.generos}]
+                        
+                generos_select = ui.select(nomes_generos, multiple=True, value=[nomes_generos[0]], label="Gêneros").classes('w-full').set_value(chave_generos)
 
-                paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64")
-                sinopse = ui.textarea(label="Sinopse")
+                chave_paises = None
+                if filme_edit:
+                   chave_paises = [k for k, v in mapa_paises.items() if v.id in {p.id for p in filme_edit.paises_origem}]
+
+                paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64").set_value(chave_paises)
+                sinopse = ui.textarea(label="Sinopse").set_value(filme_edit.sinopse if filme_edit else None)
 
         def enviar_filme():
 
@@ -119,30 +149,62 @@ def cadastrar_filme():
             filme_controller.adicionar_filme((filme))
             ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
 
-        ui.button("Cadastrar Filme", on_click=enviar_filme).classes('mt-4 bg-blue-500 text-white')
+        botao_texto = "Editar Filme" if filme_id != 0 else "Cadastrar Filme"
+        ui.button(botao_texto, on_click=enviar_filme).classes('mt-4 bg-blue-500 text-white')
+
 
 
 @ui.page("/listar")
 def listar():
     ui.label("Lista de Filmes").classes('text-2xl font-bold mb-4')
 
-    if filmes:
-        for filme in filmes:
-            with ui.card().classes('mb-4 shadow-md max-w-3xl'):
-                ui.link(f"{filme.titulo}", f"/exibir_filme/{filme.id}").classes('text-xl text-blue-600')
-                ui.label(f"Ano de Produção: {filme.ano_producao}")
-                ui.label(f"Diretor: {filme.diretor.nome}")
-                ui.label(f"Classificação: {filme.classificacao.descricao.capitalize()}")
-                generos_text = ", ".join([g.descricao for g in filme.generos])
-                ui.label(f"Gêneros: {generos_text}")
-                ui.label(f"Países de Origem: {', '.join(p.descricao for p in filme.paises_origem)}")
-                if filme.data_estreia:
-                    ui.label(f"Estreia: {filme.data_estreia.strftime('%d/%m/%Y')} - País: {filme.pais_estreia.descricao}")
-                else:
-                    ui.label(f"Estreia: Desconhecida - País: {filme.pais_estreia.descricao}")
-                ui.label(f"Sinopse: {filme.sinopse}")
-    else:
-        ui.label("A lista de filmes está vazia.").classes('text-red-500')
+    filmes_list = filme_controller.listar_filmes()
+
+    with ui.column():
+        if filmes_list:
+            columns = [
+                {'name': 'titulo', 'label': 'Título', 'field': 'titulo', 'align': 'left'},
+                {'name': 'estreia', 'label': 'Data de Lançamento', 'field': 'estreia', 'align': 'left'},
+                {'name': 'diretor', 'label': 'Diretor', 'field': 'diretor', 'align': 'left'},
+                {'name': 'ver_mais', 'label': 'Consultar dados', 'field': 'ver_mais', 'align': 'left'},
+                {'name': 'editar', 'label': 'Editar', 'field': 'editar', 'align': 'left'}
+            ]
+
+            rows = []
+
+            for filme in filmes_list:
+                rows.append({
+                    'titulo': filme.titulo,
+                    'estreia': filme.data_estreia.strftime('%d/%m/%Y') if filme.data_estreia else 'Desconhecida',
+                    'diretor': filme.diretor.nome,
+                    'ver_mais': '/exibir_filme/'+str(filme.id),
+                    'editar': '/editar/'+str(filme.id)
+                })
+
+            tabela = ui.table(columns=columns, rows=rows, row_key='titulo')
+
+            tabela.add_slot('body-cell-ver_mais', '''
+                            <q-td :props="props">
+                                <a :href="props.value">
+                                    <q-icon name="search" size="md" class="cursor-pointer" />
+                                </a>
+                            </q-td>
+                        ''')
+            tabela.add_slot('body-cell-editar', '''
+                            <q-td :props="props">
+                                <a :href="props.value">
+                                    <q-icon name="edit" size="md" class="cursor-pointer" />
+                                </a>
+                            </q-td>
+                        ''')
+
+
+                
+        else:
+            ui.label("A lista de filmes está vazia.").classes('text-red-500')
+
+
+
 
 
 @ui.page("/exibir_filme/{filme_id}")
