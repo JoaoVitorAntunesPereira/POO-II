@@ -39,3 +39,6 @@ class FilmeController:
     
     def adicionar_filme(self, filme: Filme):
         self.filme_repository.add_filme(filme)
+    
+    def editar_filme(self, filme: Filme):
+        self.filme_repository.edit_filme(filme)

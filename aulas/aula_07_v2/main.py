@@ -22,11 +22,6 @@ def classificacao_map():
 classificacoes = filme_controller.listar_classificacoes()
 generos = filme_controller.listar_generos()
 
-def get_filme_by_id(filme_id: int):
-    for filme in filmes:
-        if filme.id == filme_id:
-            return filme
-
 @ui.page("/editar/{filme_id}")
 def editar(filme_id: str):
     ui.timer(0.1, lambda: ui.navigate.to(f"/formulario/{filme_id}"), once=True)
@@ -57,22 +52,29 @@ def cadastrar_filme(filme_id: int):
 
     with ui.card().classes('w-full max-w-2xl mx-auto p-10 shadow-lg'):
         with ui.grid(columns=2).classes('gap-4'):
-            titulo = ui.input(label="Título").set_value(filme_edit.titulo if filme_edit else "")
-            ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year).set_value(filme_edit.ano_producao if filme_edit else None)
+            titulo = ui.input(label="Título")
+            titulo.set_value(filme_edit.titulo if filme_edit else "")
+            
+            ano_producao = ui.number(label="Ano de produção", min=1900, max=datetime.now().year)
+            ano_producao.set_value(filme_edit.ano_producao if filme_edit else None)
             
             diretores = filme_controller.listar_diretores()
             mapa_diretores = {d.nome: d for d in diretores}
             nomes_diretores = list(mapa_diretores.keys())
-            diretor = ui.select(nomes_diretores, multiple=False, label="Diretor").classes("w-64").set_value(filme_edit.diretor.nome if filme_edit else None)
+            diretor = ui.select(nomes_diretores, multiple=False, label="Diretor").classes("w-64")
+            diretor.set_value(filme_edit.diretor.nome if filme_edit else None)
             
-            duracao = ui.number(label="Duração (minutos)").set_value(filme_edit.duracao if filme_edit else None)
+            duracao = ui.number(label="Duração (minutos)")
+            duracao.set_value(filme_edit.duracao if filme_edit else None)
             
             paises = filme_controller.listar_paises()
             mapa_paises = {p.descricao: p for p in paises}
             nomes_paises = list(mapa_paises.keys())      
-            pais_estreia = ui.select(nomes_paises, multiple=False, label="País de estreia").classes("w-64").set_value(filme_edit.pais_estreia.descricao if filme_edit else None)
+            pais_estreia = ui.select(nomes_paises, multiple=False, label="País de estreia").classes("w-64")
+            pais_estreia.set_value(filme_edit.pais_estreia.descricao if filme_edit else None)
             
-            data_lancamento = data_lancamento_func().set_value(filme_edit.data_estreia if filme_edit else None)
+            data_lancamento = data_lancamento_func()
+            data_lancamento.set_value(filme_edit.data_estreia if filme_edit else None)
 
             with ui.column():
                 ui.label("Classificação indicativa").classes('text-base font-medium')
@@ -86,7 +88,8 @@ def cadastrar_filme(filme_id: int):
                             chave_classificacao = k
                             break
                 
-                classificacao_radio = ui.radio(opcoes_classificacao, value='Livre').set_value(chave_classificacao)
+                classificacao_radio = ui.radio(opcoes_classificacao, value='Livre')
+                classificacao_radio.set_value(chave_classificacao)
 
             with ui.column():
                 generos = filme_controller.listar_generos()
@@ -97,14 +100,18 @@ def cadastrar_filme(filme_id: int):
                 if filme_edit:
                    chave_generos = [k for k, v in mapa_generos.items() if v.id in {g.id for g in filme_edit.generos}]
                         
-                generos_select = ui.select(nomes_generos, multiple=True, value=[nomes_generos[0]], label="Gêneros").classes('w-full').set_value(chave_generos)
+                generos_select = ui.select(nomes_generos, multiple=True, value=[nomes_generos[0]], label="Gêneros").classes('w-full')
+                generos_select.set_value(chave_generos)
 
                 chave_paises = None
                 if filme_edit:
                    chave_paises = [k for k, v in mapa_paises.items() if v.id in {p.id for p in filme_edit.paises_origem}]
 
-                paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64").set_value(chave_paises)
-                sinopse = ui.textarea(label="Sinopse").set_value(filme_edit.sinopse if filme_edit else None)
+                paises_origem = ui.select(nomes_paises, multiple=True, label="Países de origem").classes("w-64")
+                paises_origem.set_value(chave_paises)
+                
+                sinopse = ui.textarea(label="Sinopse")
+                sinopse.set_value(filme_edit.sinopse if filme_edit else None)
 
         def enviar_filme():
 
@@ -146,7 +153,13 @@ def cadastrar_filme(filme_id: int):
                 print(f" - {pais.descricao} (ID: {pais.id})")
             print(f"Sinopse: {filme.sinopse}")
             print("========================")
-            filme_controller.adicionar_filme((filme))
+            
+            filme.id = filme_edit.id
+            
+            if filme_edit:
+                filme_controller.editar_filme(filme)
+            else:
+                filme_controller.adicionar_filme(filme)
             ui.notify(f'Filme "{filme.titulo}" cadastrado com sucesso!', type='positive')
 
         botao_texto = "Editar Filme" if filme_id != 0 else "Cadastrar Filme"
@@ -209,7 +222,7 @@ def listar():
 
 @ui.page("/exibir_filme/{filme_id}")
 def exibir_filme(filme_id: int):
-    filme = get_filme_by_id(filme_id)
+    filme = filme_controller.buscar_filme_por_id(filme_id)
     if not filme:
         ui.label("Filme não encontrado.").classes("text-red-500")
         return

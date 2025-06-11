@@ -84,8 +84,32 @@ class FilmeRepository:
         self.db.add(filme_db)
         self.db.commit()
             
-        
-        
+    def edit_filme(self, filme_obj):
+        filme_db = self.db.query(tb_filme).get(filme_obj.id)
+        if not filme_db:
+            raise ValueError("Filme não encontrado.")
+
+        # Atualiza os campos simples
+        filme_db.titulo = filme_obj.titulo
+        filme_db.ano_producao = filme_obj.ano_producao
+        filme_db.data_estreia = filme_obj.data_estreia
+        filme_db.duracao = filme_obj.duracao
+        filme_db.sinopse = filme_obj.sinopse
+        filme_db.diretor = self.db.query(tb_diretor).get(filme_obj.diretor.id)
+        filme_db.classificacao = self.db.query(tb_classificacao).get(filme_obj.classificacao.id)
+        filme_db.pais_estreia = self.db.query(tb_pais).get(filme_obj.pais_estreia.id)
+
+        # Atualiza os relacionamentos muitos-para-muitos
+        filme_db.generos.clear()
+        generos_db = [self.db.query(tb_genero).get(g.id) for g in filme_obj.generos]
+        filme_db.generos.extend(generos_db)
+
+        filme_db.paises_origem.clear()
+        paises_db = [self.db.query(tb_pais).get(p.id) for p in filme_obj.paises_origem]
+        filme_db.paises_origem.extend(paises_db)
+
+        self.db.commit()
+
 
 
 #---Diretor
