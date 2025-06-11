@@ -179,8 +179,9 @@ def listar():
                 {'name': 'titulo', 'label': 'Título', 'field': 'titulo', 'align': 'left'},
                 {'name': 'estreia', 'label': 'Data de Lançamento', 'field': 'estreia', 'align': 'left'},
                 {'name': 'diretor', 'label': 'Diretor', 'field': 'diretor', 'align': 'left'},
-                {'name': 'ver_mais', 'label': 'Consultar dados', 'field': 'ver_mais', 'align': 'left'},
-                {'name': 'editar', 'label': 'Editar', 'field': 'editar', 'align': 'left'}
+                {'name': 'ver_mais', 'label': 'Detalhes', 'field': 'ver_mais', 'align': 'left'},
+                {'name': 'editar', 'label': 'Editar', 'field': 'editar', 'align': 'left'},
+                {'name': 'excluir', 'label': 'Excluir', 'field': 'excluir', 'align': 'left'}
             ]
 
             rows = []
@@ -191,7 +192,8 @@ def listar():
                     'estreia': filme.data_estreia.strftime('%d/%m/%Y') if filme.data_estreia else 'Desconhecida',
                     'diretor': filme.diretor.nome,
                     'ver_mais': '/exibir_filme/'+str(filme.id),
-                    'editar': '/editar/'+str(filme.id)
+                    'editar': '/editar/'+str(filme.id),
+                    'excluir': '/excluir/'+str(filme.id)
                 })
 
             tabela = ui.table(columns=columns, rows=rows, row_key='titulo')
@@ -210,6 +212,13 @@ def listar():
                                 </a>
                             </q-td>
                         ''')
+            tabela.add_slot('body-cell-excluir', '''
+                            <q-td :props="props">
+                                <a :href="props.value">
+                                    <q-icon name="delete" size="md" class="cursor-pointer" />
+                                </a>
+                            </q-td>
+                        ''')
 
 
                 
@@ -217,7 +226,11 @@ def listar():
             ui.label("A lista de filmes está vazia.").classes('text-red-500')
 
 
-
+@ui.page("/excluir/{filme_id}")
+def excluir(filme_id: int):
+    filme_delete = filme_controller.buscar_filme_por_id(filme_id)
+    
+    filme_controller.excluir_filme(filme_delete)
 
 
 @ui.page("/exibir_filme/{filme_id}")

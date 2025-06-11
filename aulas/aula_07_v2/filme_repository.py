@@ -110,6 +110,13 @@ class FilmeRepository:
 
         self.db.commit()
 
+    def delete_filme(self, filme_obj):
+        filme_db = self.db.query(tb_filme).get(filme_obj.id)
+        if not filme_db:
+            raise ValueError("Filme não encontrado.")
+        
+        self.db.delete(filme_db)
+        
 
 
 #---Diretor

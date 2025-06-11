@@ -42,3 +42,6 @@ class FilmeController:
     
     def editar_filme(self, filme: Filme):
         self.filme_repository.edit_filme(filme)
+        
+    def excluir_filme(self, filme: Filme):
+        self.filme_repository.delete_filme(filme)
