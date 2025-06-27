@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./filme_obj_"
+    ]
+}
