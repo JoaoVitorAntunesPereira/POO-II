@@ -1,12 +1,6 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
-# Agora você pode importar o módulo pessoa_abs.py
-from aula_02.pessoa_abs import PessoaFisica, PessoaJuridica
+from pessoa_abs import PessoaFisica, PessoaJuridica, TipoPessoa
 from nicegui import ui
+
 
 
 pf = PessoaFisica("joao", "joao@gmail.com", "11723323985")
@@ -22,7 +16,7 @@ with ui.row():
 
 
 def calculo():
-    if tipo_pessoa.value == "Pessoa Física":
+    if tipo_pessoa.value == TipoPessoa.FISICA.value:
         pf.renda = float(renda.value)  
         ui.notify(f"Calculando...{pf.renda}")
         ir = pf.calcular_ir()

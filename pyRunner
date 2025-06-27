@@ -1,2 +1,0 @@
-cd aulas/$1
-python3 $2
